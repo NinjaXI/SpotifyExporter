@@ -5,6 +5,19 @@ Currently when this happens you can still see them in your liked list, but they 
 Notably you can't see these anywhere else in the app(eg when searching for the exact etc.).
 This saves the data locally so that should Spotify deprecate support for liked tracks that are no longer available in your region, you still have record of them if you want to find them elsewhere.
 
+# Output
+Currently this script saves all user specific data from the API as JSON files.
+The JSON structures are left mostly in tact as it is intended to be a simple dump processed seperately.
+The data exported : 
+   - Liked Songs
+   - Liked Albums
+   - Liked Audiobooks
+   - Liked Podcast Episodes
+   - Followed and Created Playlists
+   - Liked Shows
+   - Followed Artists
+Output can be found in the output folder in seperate JSON files with dates in the filename.
+
 # Setup
 This is a relatively simple script so the setup should be quick and easy.
 This assumes you already have Rust setup.

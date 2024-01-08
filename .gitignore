@@ -17,7 +17,7 @@ Cargo.lock
 properties.toml
 
 # exported files
-tracks*.json
+/output
 
 # Added by cargo
 

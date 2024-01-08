@@ -39,7 +39,7 @@ impl SpotifyClient {
 
         // TODO genereate random string for state
         let state: &str = "1234567890123456";
-        let scope: &str = "user-read-private user-read-email user-library-read";
+        let scope: &str = "user-library-read user-read-playback-position playlist-read-private user-follow-read";
         let authorization_url: &str = &format!("https://accounts.spotify.com/authorize?response_type=token&client_id={}&scope={}&redirect_uri=http://localhost:8000/callback&state={}", self.spotify_client_id, scope, state);
         open::that(authorization_url).unwrap();
 
@@ -81,6 +81,96 @@ impl SpotifyClient {
     /// * `limit` - An int specifying total number of tracks to return, 50 is max
     pub async fn get_saved_tracks(&self, offset: i32, limit: i32) -> Result<Value, Error> {
         let url: String = format!("https://api.spotify.com/v1/me/tracks?offset={}&limit={}", offset, limit);
+        let get_response: Response = self.client.get(url).header("Authorization", format!("{} {}", self.token_type, self.access_token)).send().await?;
+        let get_response_json: Value = serde_json::from_str(&get_response.text().await?).expect("JSON was not well-formatted");
+
+        Ok(get_response_json)
+    }
+
+    /// Retrieve the saved albums for the user
+    ///
+    /// # Arguments
+    ///
+    /// * `offset` - An int that specifies the offset in the list of saved albums
+    /// * `limit` - An int specifying total number of albums to return, 50 is max
+    pub async fn get_saved_albums(&self, offset: i32, limit: i32) -> Result<Value, Error> {
+        let url: String = format!("https://api.spotify.com/v1/me/albums?offset={}&limit={}", offset, limit);
+        let get_response: Response = self.client.get(url).header("Authorization", format!("{} {}", self.token_type, self.access_token)).send().await?;
+        let get_response_json: Value = serde_json::from_str(&get_response.text().await?).expect("JSON was not well-formatted");
+
+        Ok(get_response_json)
+    }
+
+    /// Retrieve the saved audiobooks for the user
+    ///
+    /// # Arguments
+    ///
+    /// * `offset` - An int that specifies the offset in the list of saved audiobooks
+    /// * `limit` - An int specifying total number of audiobooks to return, 50 is max
+    pub async fn get_saved_audiobooks(&self, offset: i32, limit: i32) -> Result<Value, Error> {
+        let url: String = format!("https://api.spotify.com/v1/me/audiobooks?offset={}&limit={}", offset, limit);
+        let get_response: Response = self.client.get(url).header("Authorization", format!("{} {}", self.token_type, self.access_token)).send().await?;
+        let get_response_json: Value = serde_json::from_str(&get_response.text().await?).expect("JSON was not well-formatted");
+
+        Ok(get_response_json)
+    }
+
+    /// Retrieve the saved episodes for the user
+    ///
+    /// # Arguments
+    ///
+    /// * `offset` - An int that specifies the offset in the list of saved episodes
+    /// * `limit` - An int specifying total number of episodes to return, 50 is max
+    pub async fn get_saved_episodes(&self, offset: i32, limit: i32) -> Result<Value, Error> {
+        let url: String = format!("https://api.spotify.com/v1/me/episodes?offset={}&limit={}", offset, limit);
+        let get_response: Response = self.client.get(url).header("Authorization", format!("{} {}", self.token_type, self.access_token)).send().await?;
+        let get_response_json: Value = serde_json::from_str(&get_response.text().await?).expect("JSON was not well-formatted");
+
+        Ok(get_response_json)
+    }
+
+    /// Retrieve the owned or followed playlists for the user
+    ///
+    /// # Arguments
+    ///
+    /// * `offset` - An int that specifies the offset in the list of playlists
+    /// * `limit` - An int specifying total number of playlists to return, 50 is max
+    pub async fn get_owned_followed_playlists(&self, offset: i32, limit: i32) -> Result<Value, Error> {
+        let url: String = format!("https://api.spotify.com/v1/me/playlists?offset={}&limit={}", offset, limit);
+        let get_response: Response = self.client.get(url).header("Authorization", format!("{} {}", self.token_type, self.access_token)).send().await?;
+        let get_response_json: Value = serde_json::from_str(&get_response.text().await?).expect("JSON was not well-formatted");
+
+        Ok(get_response_json)
+    }
+
+    /// Retrieve the saved shows for the user
+    ///
+    /// # Arguments
+    ///
+    /// * `offset` - An int that specifies the offset in the list of saved shows
+    /// * `limit` - An int specifying total number of shows to return, 50 is max
+    pub async fn get_saved_shows(&self, offset: i32, limit: i32) -> Result<Value, Error> {
+        let url: String = format!("https://api.spotify.com/v1/me/shows?offset={}&limit={}", offset, limit);
+        let get_response: Response = self.client.get(url).header("Authorization", format!("{} {}", self.token_type, self.access_token)).send().await?;
+        let get_response_json: Value = serde_json::from_str(&get_response.text().await?).expect("JSON was not well-formatted");
+
+        Ok(get_response_json)
+    }
+
+    /// Retrieve the followed artists for the user
+    ///
+    /// # Arguments
+    ///
+    /// * `offset` - An int that specifies the offset in the list of followed artists
+    /// * `limit` - An int specifying total number of artists to return, 50 is max
+    pub async fn get_followed_artists(&self, after: &str, limit: i32) -> Result<Value, Error> {
+        let url: String;
+        if after == "" {
+            url = format!("https://api.spotify.com/v1/me/following?type=artist&limit={}", limit);
+        } else {
+            url = format!("https://api.spotify.com/v1/me/following?type=artist&after={}&limit={}", after, limit);
+        }
+
         let get_response: Response = self.client.get(url).header("Authorization", format!("{} {}", self.token_type, self.access_token)).send().await?;
         let get_response_json: Value = serde_json::from_str(&get_response.text().await?).expect("JSON was not well-formatted");
 

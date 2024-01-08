@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <script>
+            const fragment = window.location.hash.substring(1);
+
+            fetch('http://localhost:8000/finalizeAuthentication?' + fragment).then(response => {
+                window.close();
+            }).catch(error => {
+                window.close();
+            });
+        </script>
+    </head>
+    <body>
+        Processing...
+    </body>
+</html>

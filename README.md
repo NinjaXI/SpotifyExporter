@@ -16,6 +16,7 @@ The data exported :
    - Followed and Created Playlists
    - Liked Shows
    - Followed Artists
+
 Output can be found in the output folder in seperate JSON files with dates in the filename.
 
 # Setup

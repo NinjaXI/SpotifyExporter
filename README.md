@@ -7,13 +7,13 @@ This saves the data locally so that should Spotify deprecate support for liked t
 
 # Output
 Currently this script saves all user specific data from the API as JSON files.
-The JSON structures are left mostly intact as it is intended to be a simple dump processed seperately.
+The JSON structures are left mostly intact(except for playlist export) as it is intended to be a simple dump processed seperately.
 The data exported : 
    - Liked Songs
    - Liked Albums
    - Liked Audiobooks
    - Liked Podcast Episodes
-   - Followed and Created Playlists(In Progress)
+   - Followed and Created Playlists
    - Liked Shows
    - Followed Artists
 

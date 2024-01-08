@@ -1,5 +1,5 @@
 use reqwest::{Client, Response, Error};
-use serde_json::{Value};
+use serde_json::Value;
 
 pub struct SpotifyClient {
     spotify_client_id: String,

@@ -5,9 +5,11 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+#tokio = {version = "1.34.0", features = ["full"]}
+
 [dependencies]
-tokio = {version = "1.34.0", features = ["full"]}
 reqwest = {version = "0.11", features = ["json"]}
 serde = {version = "1", features = ["derive"]}
 serde_json = {version = "1"}
 config = {version = "0.13.4"}
+rocket = {version = "0.5.0"}

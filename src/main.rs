@@ -66,6 +66,8 @@ async fn main() {
 
 async fn export_saved_tracks(spotify_client: &SpotifyClient) {
     println!("Exporting saved tracks");
+    print!("\rProcessing 0%");
+    std::io::stdout().flush().unwrap();
 
     // retrieve first 50 tracks
     let mut tracks_vector: Vec<Value> = Vec::new();
@@ -84,11 +86,15 @@ async fn export_saved_tracks(spotify_client: &SpotifyClient) {
 
     // save tracks as json struct to file
     fs::write(format!("output/tracks_{}.json", Local::now().format("%Y%m%d")), serde_json::to_string(&TracksJson{tracks: tracks_vector}).unwrap()).unwrap();
-    println!("");
+
+    print!("\rProcessing 100%\n");
+    std::io::stdout().flush().unwrap();
 }
 
 async fn export_saved_albums(spotify_client: &SpotifyClient) {
     println!("Exporting saved albums");
+    print!("\rProcessing 0%");
+    std::io::stdout().flush().unwrap();
 
     // retrieve first 50 albums
     let mut albums_vector: Vec<Value> = Vec::new();
@@ -107,11 +113,15 @@ async fn export_saved_albums(spotify_client: &SpotifyClient) {
 
     // save albums as json struct to file
     fs::write(format!("output/albums_{}.json", Local::now().format("%Y%m%d")), serde_json::to_string(&AlbumJson{albums: albums_vector}).unwrap()).unwrap();
-    println!("");
+
+    print!("\rProcessing 100%\n");
+    std::io::stdout().flush().unwrap();
 }
 
 async fn export_saved_audiobooks(spotify_client: &SpotifyClient) {
     println!("Exporting saved audiobooks");
+    print!("\rProcessing 0%");
+    std::io::stdout().flush().unwrap();
 
     // retrieve first 50 audiobooks
     let mut audiobooks_vector: Vec<Value> = Vec::new();
@@ -130,11 +140,15 @@ async fn export_saved_audiobooks(spotify_client: &SpotifyClient) {
 
     // save audiobooks as json struct to file
     fs::write(format!("output/audiobooks_{}.json", Local::now().format("%Y%m%d")), serde_json::to_string(&AudiobookJson{audiobooks: audiobooks_vector}).unwrap()).unwrap();
-    println!("");
+
+    print!("\rProcessing 100%\n");
+    std::io::stdout().flush().unwrap();
 }
 
 async fn export_saved_episodes(spotify_client: &SpotifyClient) {
     println!("Exporting saved episodes");
+    print!("\rProcessing 0%");
+    std::io::stdout().flush().unwrap();
 
     // retrieve first 50 episodes
     let mut episodes_vector: Vec<Value> = Vec::new();
@@ -153,21 +167,35 @@ async fn export_saved_episodes(spotify_client: &SpotifyClient) {
 
     // save episodes as json struct to file
     fs::write(format!("output/episodes_{}.json", Local::now().format("%Y%m%d")), serde_json::to_string(&EpisodeJson{episodes: episodes_vector}).unwrap()).unwrap();
-    println!("");
+
+    print!("\rProcessing 100%\n");
+    std::io::stdout().flush().unwrap();
 }
 
 async fn export_user_playlists(spotify_client: &SpotifyClient) {
     println!("Exporting users owned or followed playlists");
+    print!("\rProcessing 0%");
+    std::io::stdout().flush().unwrap();
 
     // retrieve first 50 playlists
     let mut playlists_vector: Vec<Value> = Vec::new();
     let mut spotify_playlist_response: Value = spotify_client.get_owned_followed_playlists(0, 50).await.unwrap();
-    playlists_vector.append(&mut spotify_playlist_response["items"].as_array().unwrap().clone());
+    for mut playlist in spotify_playlist_response["items"].as_array().unwrap().to_owned() {
+        let spotify_track_response: Value = spotify_client.get_playlist_tracks(playlist["id"].as_str().unwrap(), 0, 50).await.unwrap();
+        playlist["tracks"] = spotify_track_response["items"].clone();
+
+        playlists_vector.push(playlist);
+    }
 
     // keep retrieving playlists until our count = total in spotify response
     while playlists_vector.len() < usize::try_from(spotify_playlist_response["total"].as_i64().unwrap()).unwrap() {
         spotify_playlist_response = spotify_client.get_owned_followed_playlists(playlists_vector.len().try_into().unwrap(), 50).await.unwrap();
-        playlists_vector.append(&mut spotify_playlist_response["items"].as_array().unwrap().clone());
+        for mut playlist in spotify_playlist_response["items"].as_array().unwrap().to_owned() {
+            let spotify_track_response: Value = spotify_client.get_playlist_tracks(playlist["id"].as_str().unwrap(), 0, 50).await.unwrap();
+            playlist["tracks"] = spotify_track_response["items"].clone();
+    
+            playlists_vector.push(playlist);
+        }
 
         let percentage = (f64::from(i32::try_from(playlists_vector.len()).unwrap()) / spotify_playlist_response["total"].as_f64().unwrap()) * 100.0;
         print!("\rProcessing {:.0}%", percentage);
@@ -176,11 +204,15 @@ async fn export_user_playlists(spotify_client: &SpotifyClient) {
 
     // save playlists as json struct to file
     fs::write(format!("output/playlists_{}.json", Local::now().format("%Y%m%d")), serde_json::to_string(&PlaylistJson{playlists: playlists_vector}).unwrap()).unwrap();
-    println!("");
+
+    print!("\rProcessing 100%\n");
+    std::io::stdout().flush().unwrap();
 }
 
 async fn export_saved_shows(spotify_client: &SpotifyClient) {
     println!("Exporting saved shows");
+    print!("\rProcessing 0%");
+    std::io::stdout().flush().unwrap();
 
     // retrieve first 50 shows
     let mut shows_vector: Vec<Value> = Vec::new();
@@ -199,11 +231,15 @@ async fn export_saved_shows(spotify_client: &SpotifyClient) {
 
     // save shows as json struct to file
     fs::write(format!("output/shows_{}.json", Local::now().format("%Y%m%d")), serde_json::to_string(&ShowJson{shows: shows_vector}).unwrap()).unwrap();
-    println!("");
+
+    print!("\rProcessing 100%\n");
+    std::io::stdout().flush().unwrap();
 }
 
 async fn export_followed_artists(spotify_client: &SpotifyClient) {
     println!("Exporting followed artists");
+    print!("\rProcessing 0%");
+    std::io::stdout().flush().unwrap();
 
     // retrieve first 50 artists
     let mut artists_vector: Vec<Value> = Vec::new();
@@ -224,5 +260,7 @@ async fn export_followed_artists(spotify_client: &SpotifyClient) {
 
     // save artists as json struct to file
     fs::write(format!("output/artists_{}.json", Local::now().format("%Y%m%d")), serde_json::to_string(&ArtistJson{artists: artists_vector}).unwrap()).unwrap();
-    println!("");
+
+    print!("\rProcessing 100%\n");
+    std::io::stdout().flush().unwrap();
 }

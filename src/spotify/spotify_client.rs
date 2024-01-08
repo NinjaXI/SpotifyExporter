@@ -1,3 +1,4 @@
+use rand::{distributions::Alphanumeric, Rng};
 use reqwest::{Client, Response, Error};
 use serde_json::Value;
 
@@ -37,8 +38,8 @@ impl SpotifyClient {
         // start TCP Listener that will be used to receive callback requests as part of OAuth flow
         let listener: TcpListener = TcpListener::bind("127.0.0.1:8000").expect("Failed to bind to address");
 
-        // TODO genereate random string for state
-        let state: &str = "1234567890123456";
+        // generate random 16 length string to validate in implicit grant
+        let state: String = rand::thread_rng().sample_iter(&Alphanumeric).take(16).map(char::from).collect();
         let scope: &str = "user-library-read user-read-playback-position playlist-read-private user-follow-read";
         let authorization_url: &str = &format!("https://accounts.spotify.com/authorize?response_type=token&client_id={}&scope={}&redirect_uri=http://localhost:8000/callback&state={}", self.spotify_client_id, scope, state);
         open::that(authorization_url).unwrap();
@@ -58,7 +59,7 @@ impl SpotifyClient {
                     // we only expect 2 calls here, either the callback from spotify, or a finalize call from our own html
                     if url.contains("finalizeAuthentication") {
                         // if it is the finalize call we extract the access_token from the url
-                        self.finalize_implicit_grant(url, state);
+                        self.finalize_implicit_grant(url, &state);
 
                         running = false;
                     } else {
@@ -137,6 +138,22 @@ impl SpotifyClient {
     /// * `limit` - An int specifying total number of playlists to return, 50 is max
     pub async fn get_owned_followed_playlists(&self, offset: i32, limit: i32) -> Result<Value, Error> {
         let url: String = format!("https://api.spotify.com/v1/me/playlists?offset={}&limit={}", offset, limit);
+        let get_response: Response = self.client.get(url).header("Authorization", format!("{} {}", self.token_type, self.access_token)).send().await?;
+        let get_response_json: Value = serde_json::from_str(&get_response.text().await?).expect("JSON was not well-formatted");
+
+        Ok(get_response_json)
+    }
+
+    /// Retrieve the tracks of the playlist for the given playlist id
+    ///
+    /// # Arguments
+    ///
+    /// * `playlist_id` - The id of the playlist to retrieve tracks for
+    /// * `offset` - An int that specifies the offset in the list of tracks
+    /// * `limit` - An int specifying total number of tracks to return, 50 is max
+    pub async fn get_playlist_tracks(&self, playlist_id: &str, offset: i32, limit: i32) -> Result<Value, Error> {
+        let fields: &str = "items(added_by.id,added_at,track(id,name,album(album_type,name,release_date,artists(id,name)),artists(id,name)))"; // the fields specifier for track.album.artists has no affect
+        let url: String = format!("https://api.spotify.com/v1/playlists/{}/tracks?fields={}&offset={}&limit={}", playlist_id, fields, offset, limit);
         let get_response: Response = self.client.get(url).header("Authorization", format!("{} {}", self.token_type, self.access_token)).send().await?;
         let get_response_json: Value = serde_json::from_str(&get_response.text().await?).expect("JSON was not well-formatted");
 

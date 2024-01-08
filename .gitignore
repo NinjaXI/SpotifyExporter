@@ -12,3 +12,10 @@ Cargo.lock
 
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
+
+# properties file, see properties.default.toml for default properties
+properties.toml
+
+# Added by cargo
+
+/target

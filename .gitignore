@@ -16,6 +16,9 @@ Cargo.lock
 # properties file, see properties.default.toml for default properties
 properties.toml
 
+# exported files
+tracks*.json
+
 # Added by cargo
 
 /target

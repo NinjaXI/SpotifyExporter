@@ -9,8 +9,8 @@ This saves the data locally so that should Spotify deprecate support for liked t
 This is a relatively simple script so the setup should be quick and easy.
 This assumes you already have Rust setup.
 1. Create an app on the Spotify Web API as instructed here : https://developer.spotify.com/documentation/web-api
-   - Take not of the client ID generated
-   - Set your redirect URI to http://localhost:8000
+   - Take note of the client ID generated
+   - Set your redirect URI to http://localhost:8000/callback
 2. Rename properties.default.toml to properties.toml
 3. After renaming replace "clientId" with the client ID from step 1.
 4. Build using cargo build

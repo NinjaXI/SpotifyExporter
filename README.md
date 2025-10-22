@@ -26,9 +26,18 @@ This assumes you already have Rust setup.
    - Take note of the client ID and secret generated
    - Set your redirect URI to http://localhost:8000/callback
 2. Rename properties.default.toml to properties.toml
-3. After renaming update 'oauth_flow_type' to preferred OAuth2.0 flow type(Implicit Grant by default).
-4. Replace "clientId" with the client ID from step 1.
-5. Replace "clientSecret" with the client secret from step 1. 
-   - This is not relevant for Implcit Grant(token in properties) flow type so it can be left as is.
+3. After renaming update `oauth_flow_type` to preferred OAuth2.0 flow type(Implicit Grant by default).
+4. Update `spotify_client_id` to the client ID from step 1.
+5. Update `spotify_client_secret` to the client secret from step 1. 
+   - This is not relevant for Implcit Grant("token" in properties) flow type so it can be left as is.
 6. Build using cargo build
 7. Run using cargo run
+
+# Planned
+This is a simple script I wrote mostly to dip my toes in Rust, so nothing major planned.
+However I do use this myself and I would like to further automate some things I do manually after export
+
+1. Zip the exported JSON files for a smaller footprint
+2. Add Authorization Code with PKCE flow support
+
+No garuntee either will be done, but that is on my radar.

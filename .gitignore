@@ -16,6 +16,12 @@ Cargo.lock
 # properties file, see properties.default.toml for default properties
 properties.toml
 
+# refresh token stored for authorization code OAuth flow
+token.txt
+
+# IDE metadata
+*.code-workspace
+
 # exported files
 /output
 

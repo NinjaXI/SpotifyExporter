@@ -23,9 +23,12 @@ Output can be found in the output folder in seperate JSON files with dates in th
 This is a relatively simple script so the setup should be quick and easy.
 This assumes you already have Rust setup.
 1. Create an app on the Spotify Web API as instructed here : https://developer.spotify.com/documentation/web-api
-   - Take note of the client ID generated
+   - Take note of the client ID and secret generated
    - Set your redirect URI to http://localhost:8000/callback
 2. Rename properties.default.toml to properties.toml
-3. After renaming replace "clientId" with the client ID from step 1.
-4. Build using cargo build
-5. Run using cargo run
+3. After renaming update 'oauth_flow_type' to preferred OAuth2.0 flow type(Implicit Grant by default).
+4. Replace "clientId" with the client ID from step 1.
+5. Replace "clientSecret" with the client secret from step 1. 
+   - This is not relevant for Implcit Grant(token in properties) flow type so it can be left as is.
+6. Build using cargo build
+7. Run using cargo run

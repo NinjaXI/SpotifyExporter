@@ -48,23 +48,25 @@ struct ArtistJson {
 #[tokio::main]
 async fn main() {
     let properties = Config::builder().add_source(config::File::with_name("properties")).build().unwrap();
-    let mut spotify_client: SpotifyClient = SpotifyClient::new(properties.get_string("spotify_client_id").unwrap());
-    spotify_client.get_implicit_grant_access_token();
+    let mut spotify_client: SpotifyClient = SpotifyClient::new(properties.get_string("oauth_flow_type").unwrap(), properties.get_string("spotify_client_id").unwrap(), properties.get_string("spotify_client_secret").unwrap());
+    spotify_client.get_access_token().await.unwrap();
 
     if !Path::new("output").exists() {
         fs::create_dir("output").unwrap();
     }
 
-    export_saved_tracks(&spotify_client).await;
-    export_saved_albums(&spotify_client).await;
-    export_saved_audiobooks(&spotify_client).await;
-    export_saved_episodes(&spotify_client).await;
-    export_user_playlists(&spotify_client).await;
-    export_saved_shows(&spotify_client).await;
-    export_followed_artists(&spotify_client).await;
+    export_saved_tracks(&mut spotify_client).await;
+    export_saved_albums(&mut spotify_client).await;
+    export_saved_audiobooks(&mut spotify_client).await;
+    export_saved_episodes(&mut spotify_client).await;
+    export_user_playlists(&mut spotify_client).await;
+    export_saved_shows(&mut spotify_client).await;
+    export_followed_artists(&mut spotify_client).await;
+
+    // TODO zip results
 }
 
-async fn export_saved_tracks(spotify_client: &SpotifyClient) {
+async fn export_saved_tracks(spotify_client: &mut SpotifyClient) {
     println!("Exporting saved tracks");
     print!("\rProcessing 0%");
     std::io::stdout().flush().unwrap();
@@ -91,7 +93,7 @@ async fn export_saved_tracks(spotify_client: &SpotifyClient) {
     std::io::stdout().flush().unwrap();
 }
 
-async fn export_saved_albums(spotify_client: &SpotifyClient) {
+async fn export_saved_albums(spotify_client: &mut SpotifyClient) {
     println!("Exporting saved albums");
     print!("\rProcessing 0%");
     std::io::stdout().flush().unwrap();
@@ -118,7 +120,7 @@ async fn export_saved_albums(spotify_client: &SpotifyClient) {
     std::io::stdout().flush().unwrap();
 }
 
-async fn export_saved_audiobooks(spotify_client: &SpotifyClient) {
+async fn export_saved_audiobooks(spotify_client: &mut SpotifyClient) {
     println!("Exporting saved audiobooks");
     print!("\rProcessing 0%");
     std::io::stdout().flush().unwrap();
@@ -145,7 +147,7 @@ async fn export_saved_audiobooks(spotify_client: &SpotifyClient) {
     std::io::stdout().flush().unwrap();
 }
 
-async fn export_saved_episodes(spotify_client: &SpotifyClient) {
+async fn export_saved_episodes(spotify_client: &mut SpotifyClient) {
     println!("Exporting saved episodes");
     print!("\rProcessing 0%");
     std::io::stdout().flush().unwrap();
@@ -172,7 +174,7 @@ async fn export_saved_episodes(spotify_client: &SpotifyClient) {
     std::io::stdout().flush().unwrap();
 }
 
-async fn export_user_playlists(spotify_client: &SpotifyClient) {
+async fn export_user_playlists(spotify_client: &mut SpotifyClient) {
     println!("Exporting users owned or followed playlists");
     print!("\rProcessing 0%");
     std::io::stdout().flush().unwrap();
@@ -209,7 +211,7 @@ async fn export_user_playlists(spotify_client: &SpotifyClient) {
     std::io::stdout().flush().unwrap();
 }
 
-async fn export_saved_shows(spotify_client: &SpotifyClient) {
+async fn export_saved_shows(spotify_client: &mut SpotifyClient) {
     println!("Exporting saved shows");
     print!("\rProcessing 0%");
     std::io::stdout().flush().unwrap();
@@ -236,7 +238,7 @@ async fn export_saved_shows(spotify_client: &SpotifyClient) {
     std::io::stdout().flush().unwrap();
 }
 
-async fn export_followed_artists(spotify_client: &SpotifyClient) {
+async fn export_followed_artists(spotify_client: &mut SpotifyClient) {
     println!("Exporting followed artists");
     print!("\rProcessing 0%");
     std::io::stdout().flush().unwrap();

@@ -37,7 +37,5 @@ This assumes you already have Rust setup.
 This is a simple script I wrote mostly to dip my toes in Rust, so nothing major planned.
 However I do use this myself and I would like to further automate some things I do manually after export
 
-1. Zip the exported JSON files for a smaller footprint
+1. Add a build process so you can download and run this without having Rust installed(or atleast without needing to run this via Cargo)
 2. Add Authorization Code with PKCE flow support
-
-No garuntee either will be done, but that is on my radar.

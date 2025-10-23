@@ -65,8 +65,6 @@ impl SpotifyClient {
             let authorization_url: &str = &format!("https://accounts.spotify.com/authorize?response_type={}&client_id={}&scope={}&redirect_uri=http://localhost:8000/callback&state={}", self.flow_type, self.spotify_client_id, scope, state);
             open::that(authorization_url).unwrap();
 
-            println!("auth url {} ", authorization_url);
-            std::io::stdout().flush().unwrap();
             let mut running: bool = true;
             while running {
                 match listener.accept() {
@@ -359,7 +357,7 @@ impl SpotifyClient {
     /// True if a valid token has been retrieved
     async fn refresh_access_token_validity(&mut self) -> Result<bool, Error> {
         // only refresh token for authorization code flow
-        if self.flow_type.eq("code") {
+        if !self.flow_type.eq("code") {
             return Ok(true)
         }
 

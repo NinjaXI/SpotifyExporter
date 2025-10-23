@@ -12,10 +12,16 @@ use zip::write::SimpleFileOptions;
 use crate::spotify::spotify_client::SpotifyClient;
 
 #[derive(Parser)]
-#[command(version, about, long_about = None)]
+#[command(version, 
+    about="Exports all your saved data from Spotify", 
+    long_about = None)]
 struct Args {
+    /// only retrieve refresh token to be used for authorization code flow, no exporting performed
     #[arg(short, long)]
-    zip: bool,
+    token: bool,
+    /// zip export files
+    #[arg(short, long)]
+    zip: bool
 }
 
 // simple structs used to have a better json serialization for file output
@@ -61,6 +67,12 @@ async fn main() {
     let properties = Config::builder().add_source(config::File::with_name("properties")).build().unwrap();
     let mut spotify_client: SpotifyClient = SpotifyClient::new(properties.get_string("oauth_flow_type").unwrap(), properties.get_string("spotify_client_id").unwrap(), properties.get_string("spotify_client_secret").unwrap());
     spotify_client.get_access_token().await.unwrap();
+
+    if args.token {
+        println!("Token retrieved and saved, please find token.txt");
+        std::io::stdout().flush().unwrap();
+        return;
+    }
 
     if !Path::new("output").exists() {
         fs::create_dir("output").unwrap();

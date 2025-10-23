@@ -15,3 +15,5 @@ open = {version = "5.0.1"}
 chrono = {version = "0.4.31"}
 rand = {version = "0.8.5"}
 base64 = "0.22.1"
+zip = "6.0.0"
+clap = { version = "4.5.50", features = ["derive"] }

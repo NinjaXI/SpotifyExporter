@@ -1,13 +1,22 @@
 mod spotify;
 
-use std::{fs, io::Write, path::Path};
+use std::{fs::{self, File}, io::Write, path::{Path, PathBuf}, str::FromStr};
 
 use chrono::Local;
+use clap::Parser;
 use config::Config;
 use serde::{Serialize, Deserialize};
 use serde_json::Value;
+use zip::write::SimpleFileOptions;
 
 use crate::spotify::spotify_client::SpotifyClient;
+
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Args {
+    #[arg(short, long)]
+    zip: bool,
+}
 
 // simple structs used to have a better json serialization for file output
 #[derive(Serialize, Deserialize)]
@@ -47,6 +56,8 @@ struct ArtistJson {
 
 #[tokio::main]
 async fn main() {
+    let args = Args::parse();
+
     let properties = Config::builder().add_source(config::File::with_name("properties")).build().unwrap();
     let mut spotify_client: SpotifyClient = SpotifyClient::new(properties.get_string("oauth_flow_type").unwrap(), properties.get_string("spotify_client_id").unwrap(), properties.get_string("spotify_client_secret").unwrap());
     spotify_client.get_access_token().await.unwrap();
@@ -63,7 +74,9 @@ async fn main() {
     export_saved_shows(&mut spotify_client).await;
     export_followed_artists(&mut spotify_client).await;
 
-    // TODO zip results
+    if args.zip {
+        zip_exported_json().unwrap();
+    }
 }
 
 async fn export_saved_tracks(spotify_client: &mut SpotifyClient) {
@@ -265,4 +278,31 @@ async fn export_followed_artists(spotify_client: &mut SpotifyClient) {
 
     print!("\rProcessing 100%\n");
     std::io::stdout().flush().unwrap();
+}
+
+fn zip_exported_json() -> zip::result::ZipResult<()> {
+    println!("Zipping exported files");
+    std::io::stdout().flush().unwrap();
+
+    let zip_file: File = File::create(format!("output/{}_exported.zip", Local::now().format("%Y%m%d"))).unwrap();
+    let mut zip_writer = zip::ZipWriter::new(zip_file);
+
+    let output_path_dir: PathBuf = PathBuf::from_str("output").unwrap();
+    for entry in output_path_dir.read_dir().unwrap() {
+        match entry {
+            Ok(e) => {
+                if e.path().is_file() && e.path().to_string_lossy().ends_with(&format!("{}.json", Local::now().format("%Y%m%d"))) {
+                    zip_writer.start_file(e.path().file_name().unwrap().to_string_lossy(), SimpleFileOptions::default()).unwrap();
+
+                    let mut to_zip_file: File = File::open(e.path()).unwrap();
+                    std::io::copy(&mut to_zip_file, &mut zip_writer).unwrap();
+                    std::fs::remove_file(e.path()).unwrap();
+                }
+            }
+            Err(_) => todo!(),
+        }
+    }
+
+    zip_writer.finish().unwrap();
+    Ok(())
 }

@@ -337,9 +337,7 @@ impl SpotifyClient {
                     form_params.insert("code_verifier", &self.code_verifier);
 
                     let access_token_url: &str = "https://accounts.spotify.com/api/token";
-                    // let auth_header: String = format!("Basic {}", BASE64_STANDARD.encode(format!("{}:{}", self.spotify_client_id, self.spotify_client_secret)));
                     let access_token_response: Response = self.client.post(access_token_url)
-                                                                // .header("Authorization", auth_header)
                                                                 .header("Content-Type", "application/x-www-form-urlencoded")
                                                                 .form(&form_params)
                                                                 .send().await?;

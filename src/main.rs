@@ -19,7 +19,7 @@ struct Args {
     /// only retrieve refresh token to be used for authorization code flow, no exporting performed
     #[arg(short, long)]
     token: bool,
-    /// zip export files
+    /// zip exported files
     #[arg(short, long)]
     zip: bool
 }
@@ -69,7 +69,7 @@ async fn main() {
     spotify_client.get_access_token().await.unwrap();
 
     if args.token {
-        println!("Token retrieved and saved, please find token.txt");
+        println!("Token retrieved and saved, please see token.txt");
         std::io::stdout().flush().unwrap();
         return;
     }

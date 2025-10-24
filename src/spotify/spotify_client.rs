@@ -2,6 +2,7 @@ use rand::{distributions::Alphanumeric, Rng};
 use reqwest::{Client, Response, Error};
 use serde_json::Value;
 use base64::{prelude::*};
+use sha2::{Sha256, Digest};
 
 use std::{collections::HashMap, fs::{self, File}, io::{Read, Write}, net::{TcpListener, TcpStream}, time::{SystemTime, UNIX_EPOCH}};
 
@@ -9,32 +10,38 @@ pub struct SpotifyClient {
     flow_type: String,
     spotify_client_id: String,
     spotify_client_secret: String,
+    code_verifier: String,
+    code_challenge: String,
+    token_refreshed: u64,
     access_token: String,
     refresh_token: String,
     token_type: String,
     expires_in: u64,
-    token_refreshed: u64,
     client: Client
 }
 
 impl SpotifyClient {
 
     pub fn new(flow_type: String, spotify_client_id: String, spotify_client_secret: String) -> Self {
+        let code_verifier: String = "".to_string();
+        let code_challenge: String = "".to_string();
+        let token_refreshed: u64 = 0;
         let access_token: String = "".to_string();
         let refresh_token: String = "".to_string();
         let token_type: String = "".to_string();
         let expires_in: u64 = 0;
-        let token_refreshed: u64 = 0;
         let client = Client::new();
 
         Self {
             flow_type,
             spotify_client_id,
             spotify_client_secret,
+            code_verifier,
+            code_challenge,
+            token_refreshed,
             access_token,
             refresh_token,
             token_type,
-            token_refreshed,
             expires_in,
             client
         }
@@ -62,7 +69,12 @@ impl SpotifyClient {
             // generate random 16 length string to validate in implicit grant
             let state: String = rand::thread_rng().sample_iter(&Alphanumeric).take(16).map(char::from).collect();
             let scope: &str = "user-library-read user-read-playback-position playlist-read-private user-follow-read";
-            let authorization_url: &str = &format!("https://accounts.spotify.com/authorize?response_type={}&client_id={}&scope={}&redirect_uri=http://localhost:8000/callback&state={}", self.flow_type, self.spotify_client_id, scope, state);
+
+            let mut authorization_url: String = format!("https://accounts.spotify.com/authorize?response_type={}&client_id={}&scope={}&redirect_uri=http://localhost:8000/callback&state={}", self.flow_type, self.spotify_client_id, scope, state);
+            if self.flow_type.eq("code") {
+                self.generate_code_challenge();
+                authorization_url.push_str(&format!("&code_challenge_method=S256&code_challenge={}", self.code_challenge));
+            }
             open::that(authorization_url).unwrap();
 
             let mut running: bool = true;
@@ -321,11 +333,13 @@ impl SpotifyClient {
                     form_params.insert("grant_type", "authorization_code");
                     form_params.insert("code", &authorization_code);
                     form_params.insert("redirect_uri", "http://localhost:8000/callback");
+                    form_params.insert("client_id", &self.spotify_client_id);
+                    form_params.insert("code_verifier", &self.code_verifier);
 
                     let access_token_url: &str = "https://accounts.spotify.com/api/token";
-                    let auth_header: String = format!("Basic {}", BASE64_STANDARD.encode(format!("{}:{}", self.spotify_client_id, self.spotify_client_secret)));
+                    // let auth_header: String = format!("Basic {}", BASE64_STANDARD.encode(format!("{}:{}", self.spotify_client_id, self.spotify_client_secret)));
                     let access_token_response: Response = self.client.post(access_token_url)
-                                                                .header("Authorization", auth_header)
+                                                                // .header("Authorization", auth_header)
                                                                 .header("Content-Type", "application/x-www-form-urlencoded")
                                                                 .form(&form_params)
                                                                 .send().await?;
@@ -362,10 +376,12 @@ impl SpotifyClient {
         }
 
         let now_secs: u64 = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
-        if self.token_refreshed == 0 || (self.token_refreshed + self.expires_in) > (now_secs - 300) {
+        if self.token_refreshed == 0 || (self.token_refreshed + self.expires_in) < (now_secs - 300) {
+            std::io::stdout().flush().unwrap();
             let mut form_params = HashMap::new();
             form_params.insert("grant_type", "refresh_token");
             form_params.insert("refresh_token", &self.refresh_token);
+            form_params.insert("client_id", &self.spotify_client_id);
 
             let refresh_token_url: &str = "https://accounts.spotify.com/api/token";
             let auth_header: String = format!("Basic {}", BASE64_STANDARD.encode(format!("{}:{}", self.spotify_client_id, self.spotify_client_secret)));
@@ -378,6 +394,7 @@ impl SpotifyClient {
             self.access_token = access_token_response_json["access_token"].as_str().unwrap().to_owned();
             self.token_type = access_token_response_json["token_type"].as_str().unwrap().to_owned();
             self.expires_in = access_token_response_json["expires_in"].as_u64().unwrap().to_owned();
+            self.token_refreshed = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
 
             if !access_token_response_json["refresh_token"].is_null() {
                 self.refresh_token = access_token_response_json["refresh_token"].as_str().unwrap().to_owned();
@@ -388,5 +405,11 @@ impl SpotifyClient {
         }
 
         Ok(true)
+    }
+
+    fn generate_code_challenge(&mut self) {
+        self.code_verifier = rand::thread_rng().sample_iter(&Alphanumeric).take(128).map(char::from).collect();
+        let code_verifier_hashed = Sha256::digest(self.code_verifier.as_bytes());
+        self.code_challenge = BASE64_STANDARD.encode(code_verifier_hashed).replace("/", "_").replace("+", "-").replace("=", "");
     }
 }

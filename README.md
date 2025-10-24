@@ -19,23 +19,23 @@ The data exported :
 
 Output can be found in the output folder in seperate JSON files with dates in the filename.
 
-# Setup
-This is a relatively simple script so the setup should be quick and easy.
-This assumes you already have Rust setup.
-1. Create an app on the Spotify Web API as instructed here : https://developer.spotify.com/documentation/web-api
+# Usage
+1. Download the relevant release
+2. Create an app on the Spotify Web API as instructed here : https://developer.spotify.com/documentation/web-api
    - Take note of the client ID and secret generated
    - Set your redirect URI to http://localhost:8000/callback
-2. Rename properties.default.toml to properties.toml
-3. After renaming update `oauth_flow_type` to preferred OAuth2.0 flow type(Implicit Grant by default).
-4. Update `spotify_client_id` to the client ID from step 1.
-5. Update `spotify_client_secret` to the client secret from step 1. 
-   - This is not relevant for Implcit Grant("token" in properties) flow type so it can be left as is.
-6. Build using cargo build
-7. Run using cargo run
+3. Rename properties.default.toml to properties.toml
+4. After renaming update `oauth_flow_type` to preferred OAuth2.0 flow type(Implicit Grant by default).
+5. Update `spotify_client_id` to the client ID from step 1.
+6. Update `spotify_client_secret` to the client secret from step 1. 
+7. To run simply execute the binary depending what platform its on "spotify-exporter.exe" for Windows for example.
+9. Additional options : 
+   -t --token generates the refresh token without performing export, useful to generate the token and then use it elsewhere on a headless server
+   -z --zip indicates whether to zip the exported files automatically after export
 
-# Planned
-This is a simple script I wrote mostly to dip my toes in Rust, so nothing major planned.
-However I do use this myself and I would like to further automate some things I do manually after export
-
-1. Add a build process so you can download and run this without having Rust installed(or atleast without needing to run this via Cargo)
-2. Add Authorization Code with PKCE flow support
+# Project Setup
+This is a relatively simple script so the setup should be quick and easy.
+1. Install rust and setup rust
+2. Do steps 2-6 from the Usage section as you will need those in place to test any changes
+3. Build using cargo build
+4. Run using cargo run

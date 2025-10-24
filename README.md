@@ -30,8 +30,8 @@ Output can be found in the output folder in seperate JSON files with dates in th
 6. Update `spotify_client_secret` to the client secret from step 1. 
 7. To run simply execute the binary depending what platform its on "spotify-exporter.exe" for Windows for example.
 9. Additional options : 
-   -t --token generates the refresh token without performing export, useful to generate the token and then use it elsewhere on a headless server
-   -z --zip indicates whether to zip the exported files automatically after export
+   - -t, --token generates the refresh token without performing export, useful to generate the token and then use it elsewhere on a headless server
+   - -z, --zip indicates whether to zip the exported files automatically after export
 
 # Project Setup
 This is a relatively simple script so the setup should be quick and easy.

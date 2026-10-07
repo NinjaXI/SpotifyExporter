@@ -27,7 +27,7 @@ Output can be found in the output folder in seperate JSON files with dates in th
 2. Install the dependencies : `pip install -r requirements.txt`
 3. Create an app on the Spotify Web API as instructed here : https://developer.spotify.com/documentation/web-api
    - Take note of the client ID and secret generated
-   - Set your redirect URI to http://localhost:8000/callback
+   - Set your redirect URI to http://127.0.0.1:8000/callback
 4. Rename properties.default.toml to properties.toml
 5. After renaming update `oauth_flow_type` to preferred OAuth2.0 flow type(Implicit Grant by default).
 6. Update `spotify_client_id` to the client ID from step 3.

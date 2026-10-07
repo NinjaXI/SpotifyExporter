@@ -56,7 +56,7 @@ class SpotifyClient:
             state = _random_alphanumeric(16)
             scope = "user-library-read user-read-playback-position playlist-read-private user-follow-read"
 
-            authorization_url = f"https://accounts.spotify.com/authorize?response_type={self.flow_type}&client_id={self.spotify_client_id}&scope={scope}&redirect_uri=http://localhost:8000/callback&state={state}"
+            authorization_url = f"https://accounts.spotify.com/authorize?response_type={self.flow_type}&client_id={self.spotify_client_id}&scope={scope}&redirect_uri=http://127.0.0.1:8000/callback&state={state}"
             if self.flow_type == "code":
                 self._generate_code_challenge()
                 authorization_url += f"&code_challenge_method=S256&code_challenge={self.code_challenge}"
@@ -229,7 +229,7 @@ class SpotifyClient:
                     form_params = {
                         "grant_type": "authorization_code",
                         "code": authorization_code,
-                        "redirect_uri": "http://localhost:8000/callback",
+                        "redirect_uri": "http://127.0.0.1:8000/callback",
                         "client_id": self.spotify_client_id,
                         "code_verifier": self.code_verifier,
                     }

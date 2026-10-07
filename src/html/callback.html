@@ -1,7 +1,7 @@
 <html>
     <head>
         <script>
-            // expect a callback of the format http://localhost:8000/callback#access_token=<access_token>&token_type=<token_type>&expires_in=<expires_in>&state=<state>
+            // expect a callback of the format http://127.0.0.1:8000/callback#access_token=<access_token>&token_type=<token_type>&expires_in=<expires_in>&state=<state>
             // extract query parameters
             let fragment = "";
             if (window.location.hash) {
@@ -11,7 +11,7 @@
             }
 
             // send query parameters to backend(see SpotifyClient.finalize_implicit_grant()) and regardless of response, close the browser window
-            fetch('http://localhost:8000/finalizeAuthentication?' + fragment).then(response => {
+            fetch('http://127.0.0.1:8000/finalizeAuthentication?' + fragment).then(response => {
                 window.close();
             }).catch(error => {
                 window.close();
